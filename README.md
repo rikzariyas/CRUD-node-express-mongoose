@@ -21,33 +21,33 @@ A REST API for registering users and managing user records. It is built with Nod
 
 1. Install dependencies:
 
-   ```bash
+   `bash
    npm install
-   ```
+   `
 
 2. Copy `.env.example` to `.env` and set the values for your environment:
 
-   ```dotenv
+   `dotenv
    PORT=4200
    ADMIN_USERNAME=admin@example.com
    ADMIN_PASSWORD=replace-with-a-strong-password
    MONGODB_URI=mongodb://localhost:27017
    DATABASE=CRUD1
-   ```
+   `
 
    `MONGODB_URI` is the MongoDB server URI, and `DATABASE` is the database name. Keep your `.env` file private and do not commit real credentials.
 
 3. Start the API:
 
-   ```bash
+   `bash
    npm run dev
-   ```
+   `
 
    For a regular Node.js start without nodemon:
 
-   ```bash
+   `bash
    npm start
-   ```
+   `
 
 The API listens on the configured `PORT` (4200 in the example). If `PORT` is unset, the server uses port `3000`.
 
@@ -55,15 +55,15 @@ The API listens on the configured `PORT` (4200 in the example). If `PORT` is uns
 
 All request and response bodies use JSON unless noted otherwise.
 
-| Method | Path | Description |
-| --- | --- | --- |
-| `GET` | `/health` | Check that the server is running. |
-| `POST` | `/api/auth/register` | Register a user. |
-| `POST` | `/api/auth/login` | Check the configured admin username and password. |
-| `GET` | `/api/users` | Return all users without password hashes. |
-| `PATCH` | `/api/users/:id` | Partially update a user's name. |
-| `PUT` | `/api/users/:id` | Replace a user record. |
-| `DELETE` | `/api/users/:id` | Delete a user. The handler currently reads `userId` from the JSON request body. |
+| Method   | Path                 | Description                                                                     |
+| -------- | -------------------- | ------------------------------------------------------------------------------- |
+| `GET`    | `/health`            | Check that the server is running.                                               |
+| `POST`   | `/api/auth/register` | Register a user.                                                                |
+| `POST`   | `/api/auth/login`    | Check the configured admin username and password.                               |
+| `GET`    | `/api/users`         | Return all users without password hashes.                                       |
+| `PATCH`  | `/api/users/:id`     | Partially update a user's name.                                                 |
+| `PUT`    | `/api/users/:id`     | Replace a user record.                                                          |
+| `DELETE` | `/api/users/:id`     | Delete a user. The handler currently reads `userId` from the JSON request body. |
 
 ### Health check
 
@@ -80,11 +80,11 @@ Content-Type: application/json
 
 ```json
 {
-  "name": "Jane Doe",
-  "age": 30,
-  "email": "jane@example.com",
-  "address": "123 Main Street",
-  "password": "choose-a-password"
+  "name": "Jane Doe",
+  "age": 30,
+  "email": "jane@example.com",
+  "address": "123 Main Street",
+  "password": "choose-a-password"
 }
 ```
 
@@ -99,8 +99,8 @@ Content-Type: application/json
 
 ```json
 {
-  "username": "admin@example.com",
-  "password": "replace-with-a-strong-password"
+  "username": "admin@example.com",
+  "password": "replace-with-a-strong-password"
 }
 ```
 
@@ -125,7 +125,7 @@ Content-Type: application/json
 
 ```json
 {
-  "userId": "<user-id>"
+  "userId": "<user-id>"
 }
 ```
 

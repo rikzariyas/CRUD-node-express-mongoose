@@ -1,32 +1,40 @@
-import bcrypt from "bcrypt"
-import mongoose from "mongoose"
+import bcrypt from "bcrypt";
+import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema({
-    userId:{
-        type: String,
-        unique: true
+const userSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: String,
+      unique: true,
     },
-    name:{
-        type: String,
-        required: true
+    name: {
+      type: String,
+      required: true,
     },
-    age:{
-        type: Number,
-        required: true
+    age: {
+      type: Number,
+      required: true,
     },
-    email:{
-        type: String,
-        required: true
+    email: {
+      type: String,
+      required: true,
     },
-    address:{
-        type: String,
-        required: true
+    address: {
+      type: String,
+      required: true,
     },
-    password:{
-        type: String,
-        required: true
-    }
-},{timestamps:true})
+    password: {
+      type: String,
+      required: true,
+    },
+    role: {
+      type: String,
+      enum: ["admin", "user", "guest"],
+      default: "user",
+    },
+  },
+  { timestamps: true },
+);
 
-const user = mongoose.model("user",userSchema)
-export default user
+const user = mongoose.model("user", userSchema);
+export default user;
