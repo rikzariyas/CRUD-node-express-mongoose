@@ -11,7 +11,7 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
-import { mongo } from "mongoose";
+// import { mongo } from "mongoose";
 
 dotenv.config();
 await connectDB();

@@ -17,10 +17,12 @@ export const replaceUserSchema = {
   }),
   body: Joi.object({
     name: Joi.string().trim().min(1).max(100).pattern(/^[A-Za-z ]+$/).required(),
-    age: Joi.number().integer().min(1).max(150).required(),
+    age: Joi.number().integer().min(10).max(150).required(),
     email: Joi.string().trim().email().required(),
     address: Joi.string().trim().min(1).max(300).required(),
-    password: Joi.string().min(6).max(128).required(),
+    password: Joi.string().min(6).max(128).pattern(
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,128}$/
+  ).required(),
   }),
 };
 
