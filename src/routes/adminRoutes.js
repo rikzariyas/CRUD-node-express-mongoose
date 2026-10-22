@@ -1,8 +1,15 @@
 import express from "express";
-import authRoutes from "./authRoutes.js";
+import { verifyAdmin } from "../middleware/authMiddleware.js";
+import { deleteUser, getAllUsers, replaceUser } from "../controllers/userController.js";
+import { validate } from "../middleware/validate.js";
+import { deleteUserSchema, replaceUserSchema } from "../validators/userValidators.js";
+import { adminLogin } from "../controllers/authController.js";
 
 const adminRoutes = express.Router({ mergeParams: true });
 
-adminRoutes.post("/login", authRoutes);
+adminRoutes.post("/login", adminLogin);
+adminRoutes.get("/users", verifyAdmin, getAllUsers);
+adminRoutes.put("/:id", verifyAdmin, validate(replaceUserSchema), replaceUser);
+adminRoutes.delete("/:id", verifyAdmin, validate(deleteUserSchema), deleteUser);
 
 export default adminRoutes;

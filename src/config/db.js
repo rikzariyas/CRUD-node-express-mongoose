@@ -10,7 +10,7 @@ const connectDB = async () => {
 
     console.log("mongodb connection successful");
     console.log(`database ${conn.connect.name}`);
-    console.log(dbName)
+    
   } catch (error) {
     console.error(`error ${error.message}`);
   }

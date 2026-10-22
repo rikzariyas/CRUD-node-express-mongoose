@@ -2,7 +2,6 @@ import User from "../models/User.js";
 
 // getting all users
 export const getAllUsers = async (req, res) => {
-  console.log("getAllUsers is called");
   try {
     const users = await User.find().select("-password");
     res.status(200).json({
@@ -20,8 +19,6 @@ export const getAllUsers = async (req, res) => {
 //update user
 
 export const nameUpdate = async (req, res) => {
-  console.log("partial update called");
-  console.log("req.params.id>>>", req.params.id);
   try {
     const { id } = req.params;
     const user = await User.findById(id);
@@ -29,7 +26,7 @@ export const nameUpdate = async (req, res) => {
       throw new Error("user not found");
     }
     user.name = req.body.name;
-     await user.save();
+    await user.save();
     res.status(200).json({
       status: "ok",
       data: user,
@@ -44,10 +41,6 @@ export const nameUpdate = async (req, res) => {
 
 //update all
 export const replaceUser = async (req, res) => {
-  console.log("replaceUser update");
-  console.log("req.params.id", req.params.id);
-  console.log("req.body", req.body);
-
   try {
     const { id } = req.params;
     const user = await User.findById(id).select("-password");
@@ -76,7 +69,6 @@ export const deleteUser = async (req, res) => {
     if (!user) {
       throw new Error("user not found");
     }
-    // const result = await User.deleteOne({ id: ObjectId });
     res.status(200).json({
       status: "ok",
       data: user,
