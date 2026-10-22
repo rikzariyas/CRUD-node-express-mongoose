@@ -56,20 +56,20 @@ The API is available at `http://localhost:<PORT>`.
 Request and response bodies use JSON. Protected endpoints expect a JWT in the `Authorization` header:
 
 ```http
-Authorization: Bearer <token>
+Authorization: Bearer YOUR_JWT_HERE
 ```
 
-| Method | Path | Access | Description |
-| --- | --- | --- | --- |
-| `GET` | `/health` | Public | Check server status and connected database name. |
-| `POST` | `/api/auth/register` | Public | Register a user. |
-| `POST` | `/api/users/login` | Public | Log in as a user and receive a JWT. |
-| `POST` | `/api/admin/login` | Public | Log in as an admin and receive a JWT. |
-| `PATCH` | `/api/users/:id` | Authenticated | Update a user's name. |
-| `PUT` | `/api/users/:id` | Authenticated | Replace a user's editable record fields. |
-| `GET` | `/api/admin/users` | Admin | List users; password hashes are excluded. |
-| `PUT` | `/api/admin/:id` | Admin | Replace a user's editable record fields. |
-| `DELETE` | `/api/admin/:id` | Admin | Delete a user. |
+| Method   | Path                 | Access        | Description                                      |
+| -------- | -------------------- | ------------- | ------------------------------------------------ |
+| `GET`    | `/health`            | Public        | Check server status and connected database name. |
+| `POST`   | `/api/auth/register` | Public        | Register a user.                                 |
+| `POST`   | `/api/users/login`   | Public        | Log in as a user and receive a JWT.              |
+| `POST`   | `/api/admin/login`   | Public        | Log in as an admin and receive a JWT.            |
+| `PATCH`  | `/api/users/:id`     | Authenticated | Update a user's name.                            |
+| `PUT`    | `/api/users/:id`     | Authenticated | Replace a user's editable record fields.         |
+| `GET`    | `/api/admin/users`   | Admin         | List users; password hashes are excluded.        |
+| `PUT`    | `/api/admin/:id`     | Admin         | Replace a user's editable record fields.         |
+| `DELETE` | `/api/admin/:id`     | Admin         | Delete a user.                                   |
 
 ### Health check
 
@@ -140,7 +140,7 @@ Update a name:
 
 ```http
 PATCH /api/users/<user-id>
-Authorization: Bearer <token>
+Authorization: Bearer YOUR_JWT_HERE
 Content-Type: application/json
 ```
 
@@ -156,7 +156,7 @@ Content-Type: application/json
 
 ```http
 DELETE /api/admin/<user-id>
-Authorization: Bearer <admin-token>
+Authorization: Bearer YOUR_ADMIN_JWT_HERE
 ```
 
 The `id` in user and admin record routes is the MongoDB document ID.
@@ -182,9 +182,9 @@ src/
 
 ## Available scripts
 
-| Command | Description |
-| --- | --- |
-| `npm start` | Start the API with Node.js. |
-| `npm run dev` | Start the API with nodemon. |
-| `npm run format` | Format the project with Prettier. |
-| `npm run format:check` | Check formatting with Prettier. |
+| Command                | Description                       |
+| ---------------------- | --------------------------------- |
+| `npm start`            | Start the API with Node.js.       |
+| `npm run dev`          | Start the API with nodemon.       |
+| `npm run format`       | Format the project with Prettier. |
+| `npm run format:check` | Check formatting with Prettier.   |
