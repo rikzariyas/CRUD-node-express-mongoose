@@ -7,7 +7,7 @@ export const updateNameSchema = {
     id,
   }),
   body: Joi.object({
-    name: Joi.string().trim().min(1).max(100).required(),
+    name: Joi.string().trim().min(1).max(100).pattern(/^[A-Za-z ]+$/).required(),
   }),
 };
 
@@ -16,7 +16,7 @@ export const replaceUserSchema = {
     id,
   }),
   body: Joi.object({
-    name: Joi.string().trim().min(1).max(100).required(),
+    name: Joi.string().trim().min(1).max(100).pattern(/^[A-Za-z ]+$/).required(),
     age: Joi.number().integer().min(1).max(150).required(),
     email: Joi.string().trim().email().required(),
     address: Joi.string().trim().min(1).max(300).required(),
