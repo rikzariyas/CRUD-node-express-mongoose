@@ -29,7 +29,7 @@ export const nameUpdate = async (req, res) => {
       throw new Error("user not found");
     }
     user.name = req.body.name;
-
+     await user.save();
     res.status(200).json({
       status: "ok",
       data: user,
