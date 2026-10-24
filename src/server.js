@@ -1,4 +1,3 @@
-// console.log("this is the server ")
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
@@ -18,12 +17,13 @@ await connectDB();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const corsOrigin = process.env.CORS_ORIGIN;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
+app.use(corsOrigin ? cors({ origin: corsOrigin }) : cors());
 app.use(helmet());
-app.use(morgan("dev"));
+app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 
 app.get("/health", (req, res) => {
   res.status(200).json({
