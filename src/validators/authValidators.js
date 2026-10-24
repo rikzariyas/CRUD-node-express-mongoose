@@ -1,5 +1,10 @@
 import Joi from "joi";
 
+export const loginValidation = Joi.object({
+  email: Joi.string().trim().lowercase().email().required(),
+  password: Joi.string().required(),
+});
+
 export const registerValidation = Joi.object({
   name: Joi.string()
     .pattern(/^[A-Za-z]+(\s[A-Za-z]+)*$/)
@@ -12,30 +17,33 @@ export const registerValidation = Joi.object({
       "string.pattern.base": "Username can only contain letters and spaces (e.g., 'John Doe')",
     }),
 
-  email: Joi.string().email().required().messages({
+  email: Joi.string().trim().lowercase().email().required().messages({
     "string.email": "Invalid email format",
   }),
 
-  address: Joi.string().min(5).optional().messages({
+  address: Joi.string().trim().min(5).max(300).required().messages({
     "string.empty": "Address is required",
     "string.min": "Address must be at least 5 characters long",
   }),
 
   password: Joi.string()
-    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/)
+    .min(8)
+    .max(128)
+    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,128}$/)
     .required()
     .messages({
       "string.empty": "Password is required",
       "string.pattern.base":
-        "Password must include at least one uppercase, one lowercase, one number, one special character, and be at least 6 characters long",
+        "Password must include at least one uppercase, one lowercase, one number, and one special character",
     }),
 
-  // role is OPTIONAL, but only accepts specific values when provided
-  role: Joi.string().valid("admin", "user").optional(),
+  role: Joi.forbidden().messages({
+    "any.unknown": "Role cannot be set during registration",
+  }),
 
-  age: Joi.number().min(10).max(80).optional().messages({
+  age: Joi.number().integer().min(10).max(150).required().messages({
     "number.base": "Age must be a number",
     "number.min": "Age must be at least 10",
-    "number.max": "Age cannot exceed 80",
+    "number.max": "Age cannot exceed 150",
   }),
 });

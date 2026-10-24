@@ -10,9 +10,13 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
-// import { mongo } from "mongoose";
+import { errorHandler } from "./middleware/errorHandler.js";
 
 dotenv.config();
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET is required");
+}
+
 await connectDB();
 
 const app = express();
@@ -26,10 +30,12 @@ app.use(helmet());
 app.use(morgan(process.env.NODE_ENV === "production" ? "combined" : "dev"));
 
 app.get("/health", (req, res) => {
-  res.status(200).json({
-    status: "OK",
-    message: "The server is running",
-    database: mongoose.connection.name,
+  const databaseConnected = mongoose.connection.readyState === 1;
+
+  return res.status(databaseConnected ? 200 : 503).json({
+    status: databaseConnected ? "OK" : "ERROR",
+    message: databaseConnected ? "The server is running" : "The database is unavailable",
+    database: databaseConnected ? mongoose.connection.name : null,
   });
 });
 
@@ -37,6 +43,13 @@ app.get("/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/users", userRoutes);
+
+app.use((req, res, next) => {
+  const error = new Error("Route not found");
+  error.statusCode = 404;
+  next(error);
+});
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server running at http://localhost:${PORT}`);
