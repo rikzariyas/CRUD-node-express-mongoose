@@ -6,7 +6,7 @@ import { deleteUserSchema, replaceUserSchema } from "../validators/userValidator
 import { adminLogin } from "../controllers/authController.js";
 import { loginValidation } from "../validators/authValidators.js";
 
-const adminRoutes = express.Router({ mergeParams: true });
+const adminRoutes = express.Router();
 
 adminRoutes.post("/login", validate({ body: loginValidation }), adminLogin);
 adminRoutes.get("/users", verifyAdmin, getAllUsers);

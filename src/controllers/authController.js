@@ -8,13 +8,6 @@ const normalizeEmail = (email) => email.trim().toLowerCase();
 export const adminLogin = async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({
-      status: "error",
-      message: "Email and password are required",
-    });
-  }
-
   const admin = await User.findOne({
     email: normalizeEmail(email),
   }).select("+password");
@@ -72,13 +65,6 @@ export const registerUser = async (req, res) => {
 
 export const userLogin = async (req, res) => {
   const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({
-      status: "error",
-      message: "Email and password are required",
-    });
-  }
 
   const user = await User.findOne({
     email: normalizeEmail(email),

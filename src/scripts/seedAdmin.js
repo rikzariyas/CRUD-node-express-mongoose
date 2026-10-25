@@ -5,6 +5,7 @@ import mongoose from "mongoose";
 import { v7 as uuidv7 } from "uuid";
 import connectDB from "../config/db.js";
 import User from "../models/User.js";
+import { validateBcryptPasswordLength } from "../validators/authValidators.js";
 
 const adminSchema = Joi.object({
   name: Joi.string().trim().min(3).max(50).required(),
@@ -13,7 +14,10 @@ const adminSchema = Joi.object({
   address: Joi.string().trim().min(5).max(300).required(),
   password: Joi.string()
     .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{12,128}$/)
+    .custom(validateBcryptPasswordLength)
     .required(),
+}).messages({
+  "string.maxBytes": "Password must not exceed bcrypt's 72-byte limit",
 });
 
 const { value, error } = adminSchema.validate(

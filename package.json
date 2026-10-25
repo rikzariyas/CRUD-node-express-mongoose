@@ -2,14 +2,16 @@
   "$schema": "https://json.schemastore.org/package",
   "name": "server",
   "version": "1.0.0",
-  "description": "",
-  "main": "server.js",
+  "description": "A REST API for registering users and managing user records. It is built with Node.js, Express, and Mongoose, and stores user passwords as bcrypt hashes.",
+  "main": "src/server.js",
   "type": "module",
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
     "seed:admin": "node src/scripts/seedAdmin.js",
-    "test": "node --test",
     "format": "prettier  --write .",
     "format:check": "prettier --check ."
   },

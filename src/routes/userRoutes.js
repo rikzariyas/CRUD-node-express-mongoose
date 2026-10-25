@@ -6,7 +6,7 @@ import { replaceUserSchema, updateNameSchema } from "../validators/userValidator
 import { userLogin } from "../controllers/authController.js";
 import { loginValidation } from "../validators/authValidators.js";
 
-const userRoutes = express.Router({ mergeParams: true });
+const userRoutes = express.Router();
 
 userRoutes.post("/login", validate({ body: loginValidation }), userLogin);
 userRoutes.patch("/:id", verifyUser, validate(updateNameSchema), verifyOwnership, nameUpdate);

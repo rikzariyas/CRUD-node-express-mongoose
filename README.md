@@ -35,8 +35,8 @@ hashing and JWT-based authentication.
 
 3. Seed the first admin account. Set `ADMIN_NAME`, `ADMIN_AGE`, `ADMIN_EMAIL`,
    `ADMIN_ADDRESS`, and `ADMIN_PASSWORD` in `.env`. The seed password must be at
-   least 12 characters and include an uppercase letter, lowercase letter,
-   number, and special character.
+   least 12 characters, no more than 72 UTF-8 bytes, and include an uppercase
+   letter, lowercase letter, number, and special character.
 
    ```bash
    npm run seed:admin
@@ -114,9 +114,10 @@ Content-Type: application/json
 ```
 
 Name, age, email, address, and password are required. Passwords must be at
-least eight characters and include uppercase and lowercase letters, a number,
-and a special character. Email addresses are normalized and unique. A `role`
-field is rejected; public registration always creates a regular user.
+least eight characters, no more than 72 UTF-8 bytes, and include uppercase and
+lowercase letters, a number, and a special character. Email addresses are
+normalized and unique. A `role` field is rejected; public registration always
+creates a regular user.
 
 ### Log in
 
@@ -130,7 +131,8 @@ Both login endpoints accept an email and password:
 ```
 
 User tokens expire after one hour; admin tokens expire after one day. Both
-tokens contain the MongoDB document ID in the `id` claim.
+tokens contain the MongoDB document ID in the `id` claim and are rejected if
+the account is deleted or its role changes.
 
 ### Update a user
 
@@ -188,7 +190,6 @@ src/
   scripts/      Admin seeding command
   validators/   Joi request schemas
   server.js     Application setup and startup
-test/           Node.js test suite
 ```
 
 ## Available scripts
@@ -198,6 +199,5 @@ test/           Node.js test suite
 | `npm start`            | Start the API with Node.js.                                |
 | `npm run dev`          | Start the API with nodemon.                                |
 | `npm run seed:admin`   | Create the initial admin using the configured seed values. |
-| `npm test`             | Run the tests with Node.js's built-in test runner.         |
 | `npm run format`       | Format the project with Prettier.                          |
 | `npm run format:check` | Check formatting with Prettier.                            |

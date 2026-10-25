@@ -1,8 +1,20 @@
 import Joi from "joi";
 
+export const validateBcryptPasswordLength = (value, helpers) => {
+  if (Buffer.byteLength(value, "utf8") > 72) {
+    return helpers.error("string.maxBytes");
+  }
+
+  return value;
+};
+
+const bcryptPasswordLengthMessage = {
+  "string.maxBytes": "Password must not exceed bcrypt's 72-byte limit",
+};
+
 export const loginValidation = Joi.object({
   email: Joi.string().trim().lowercase().email().required(),
-  password: Joi.string().required(),
+  password: Joi.string().custom(validateBcryptPasswordLength).required().messages(bcryptPasswordLengthMessage),
 });
 
 export const registerValidation = Joi.object({
@@ -30,11 +42,13 @@ export const registerValidation = Joi.object({
     .min(8)
     .max(128)
     .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,128}$/)
+    .custom(validateBcryptPasswordLength)
     .required()
     .messages({
       "string.empty": "Password is required",
       "string.pattern.base":
         "Password must include at least one uppercase, one lowercase, one number, and one special character",
+      ...bcryptPasswordLengthMessage,
     }),
 
   role: Joi.forbidden().messages({
