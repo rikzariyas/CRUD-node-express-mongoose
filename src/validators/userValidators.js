@@ -7,7 +7,12 @@ export const updateNameSchema = {
     id,
   }),
   body: Joi.object({
-    name: Joi.string().trim().min(1).max(100).pattern(/^[A-Za-z ]+$/).required(),
+    name: Joi.string()
+      .trim()
+      .min(1)
+      .max(100)
+      .pattern(/^[A-Za-z ]+$/)
+      .required(),
   }),
 };
 
@@ -16,13 +21,17 @@ export const replaceUserSchema = {
     id,
   }),
   body: Joi.object({
-    name: Joi.string().trim().min(1).max(100).pattern(/^[A-Za-z ]+$/).required(),
+    name: Joi.string()
+      .trim()
+      .min(1)
+      .max(100)
+      .pattern(/^[A-Za-z ]+$/)
+      .required(),
     age: Joi.number().integer().min(10).max(150).required(),
-    email: Joi.string().trim().email().required(),
+    email: Joi.string().trim().lowercase().email().required(),
     address: Joi.string().trim().min(1).max(300).required(),
-    password: Joi.string().min(6).max(128).pattern(
-    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,128}$/
-  ).required(),
+    password: Joi.forbidden(),
+    role: Joi.forbidden(),
   }),
 };
 

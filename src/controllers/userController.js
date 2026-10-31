@@ -1,82 +1,76 @@
 import User from "../models/User.js";
 
-// getting all users
-export const getAllUsers = async (req, res) => {
-  try {
-    const users = await User.find().select("-password");
-    res.status(200).json({
-      status: "OK",
-      data: users,
-    });
-  } catch {
-    res.status(400).json({
-      status: "Error",
-      message: error.message,
-    });
-  }
-};
+const publicUser = (user) => ({
+  id: user._id.toString(),
+  userId: user.userId,
+  name: user.name,
+  age: user.age,
+  email: user.email,
+  address: user.address,
+  role: user.role,
+  createdAt: user.createdAt,
+  updatedAt: user.updatedAt,
+});
 
-//update user
+export const getAllUsers = async (req, res) => {
+  const users = await User.find();
+
+  return res.status(200).json({
+    status: "OK",
+    data: users.map(publicUser),
+  });
+};
 
 export const nameUpdate = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const user = await User.findById(id);
-    if (!user) {
-      throw new Error("user not found");
-    }
-    user.name = req.body.name;
-    await user.save();
-    res.status(200).json({
-      status: "ok",
-      data: user,
-    });
-  } catch (error) {
-    res.status(400).json({
-      status: "Error",
-      message: error.message,
-    });
+  const user = await User.findById(req.params.id);
+
+  if (!user) {
+    const error = new Error("User not found");
+    error.statusCode = 404;
+    throw error;
   }
+
+  user.name = req.body.name;
+  await user.save();
+
+  return res.status(200).json({
+    status: "OK",
+    data: publicUser(user),
+  });
 };
 
-//update all
 export const replaceUser = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const user = await User.findById(id).select("-password");
-    if (!user) {
-      throw new Error("user not found");
-    }
-    Object.assign(user, req.body);
-    await user.save();
-    res.status(200).json({
-      status: "OK",
-      data: user,
-    });
-  } catch (error) {
-    res.status(400).json({
-      status: "Error",
-      message: error.message,
-    });
+  const user = await User.findById(req.params.id);
+
+  if (!user) {
+    const error = new Error("User not found");
+    error.statusCode = 404;
+    throw error;
   }
+
+  user.name = req.body.name;
+  user.age = req.body.age;
+  user.email = req.body.email;
+  user.address = req.body.address;
+  await user.save();
+
+  return res.status(200).json({
+    status: "OK",
+    data: publicUser(user),
+  });
 };
 
-//delete
 export const deleteUser = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) {
-      throw new Error("user not found");
-    }
-    res.status(200).json({
-      status: "ok",
-      data: user,
-    });
-  } catch (error) {
-    res.status(400).json({
-      status: "error",
-      message: error.message,
-    });
+  const user = await User.findByIdAndDelete(req.params.id);
+
+  if (!user) {
+    const error = new Error("User not found");
+    error.statusCode = 404;
+    throw error;
   }
+
+  return res.status(200).json({
+    status: "OK",
+    data: publicUser(user),
+  });
 };

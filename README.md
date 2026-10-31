@@ -1,16 +1,19 @@
 # CRUD Node, Express, and MongoDB API
 
-A JSON REST API for registering and authenticating users and managing user records. It uses Node.js, Express, MongoDB, and Mongoose, with bcrypt password hashing and JWT-based authentication.
+A JSON REST API for registering and authenticating users and managing user
+records. It uses Node.js, Express, MongoDB, and Mongoose, with bcrypt password
+hashing and JWT-based authentication.
 
 ## Features
 
 - User registration and login
-- Admin login
-- User record listing, updating, and deletion
+- Admin login and user administration
+- Admin creation only through the seed command
 - Request validation with Joi
+- Centralized JSON error responses
 - MongoDB persistence with Mongoose
 - CORS, Helmet, and Morgan middleware
-- Health-check endpoint
+- Database-aware health check
 
 ## Requirements
 
@@ -26,50 +29,56 @@ A JSON REST API for registering and authenticating users and managing user recor
    npm install
    ```
 
-2. Create a `.env` file in the project root. You can use `.env.example` as a starting point:
+2. Create a `.env` file from `.env.example` and configure MongoDB, the database
+   name, and a long random `JWT_SECRET`. Keep `.env` private and do not commit
+   credentials or secrets.
 
-   ```dotenv
-   PORT=3000
-   MONGODB_URI=mongodb://localhost:27017
-   DATABASE=your_database_name
-   JWT_SECRET=replace-with-a-long-random-secret
+3. Seed the first admin account. Set `ADMIN_NAME`, `ADMIN_AGE`, `ADMIN_EMAIL`,
+   `ADMIN_ADDRESS`, and `ADMIN_PASSWORD` in `.env`. The seed password must be at
+   least 12 characters, no more than 72 UTF-8 bytes, and include an uppercase
+   letter, lowercase letter, number, and special character.
+
+   ```bash
+   npm run seed:admin
    ```
 
-   `PORT` is optional; the server defaults to `3000`. `MONGODB_URI`, `DATABASE`, and `JWT_SECRET` should be set for your environment. Keep `.env` private and do not commit credentials or secrets.
+   Seeding is safe to rerun: an existing admin is left unchanged. It will not
+   promote a regular user. If the configured email already belongs to a regular
+   user, choose a different email. No public API endpoint creates or promotes an
+   admin.
 
-3. Start the server:
+4. Start the server:
 
    ```bash
    npm run dev
    ```
 
-   `npm run dev` starts the server with nodemon. For a regular start, use:
-
-   ```bash
-   npm start
-   ```
-
-The API is available at `http://localhost:<PORT>`.
+   For a regular start, use `npm start`. The API is available at
+   `http://localhost:<PORT>` (default port `3000`).
 
 ## API
 
-Request and response bodies use JSON. Protected endpoints expect a JWT in the `Authorization` header:
+Request and response bodies use JSON. Protected endpoints require:
 
 ```http
-Authorization: Bearer YOUR_JWT_HERE
+Authorization: Bearer <token>
 ```
 
-| Method   | Path                 | Access        | Description                                      |
-| -------- | -------------------- | ------------- | ------------------------------------------------ |
-| `GET`    | `/health`            | Public        | Check server status and connected database name. |
-| `POST`   | `/api/auth/register` | Public        | Register a user.                                 |
-| `POST`   | `/api/users/login`   | Public        | Log in as a user and receive a JWT.              |
-| `POST`   | `/api/admin/login`   | Public        | Log in as an admin and receive a JWT.            |
-| `PATCH`  | `/api/users/:id`     | Authenticated | Update a user's name.                            |
-| `PUT`    | `/api/users/:id`     | Authenticated | Replace a user's editable record fields.         |
-| `GET`    | `/api/admin/users`   | Admin         | List users; password hashes are excluded.        |
-| `PUT`    | `/api/admin/:id`     | Admin         | Replace a user's editable record fields.         |
-| `DELETE` | `/api/admin/:id`     | Admin         | Delete a user.                                   |
+| Method   | Path                   | Access           | Description                                               |
+| -------- | ---------------------- | ---------------- | --------------------------------------------------------- |
+| `GET`    | `/health`              | Public           | Check server and MongoDB readiness.                       |
+| `POST`   | `/api/auth/register`   | Public           | Register a regular user.                                  |
+| `POST`   | `/api/users/login`     | Public           | Log in as a regular user and receive a JWT.               |
+| `POST`   | `/api/admin/login`     | Public           | Log in as a seeded admin and receive a JWT.               |
+| `PATCH`  | `/api/users/:id`       | Own user account | Update the authenticated user's name.                     |
+| `PUT`    | `/api/users/:id`       | Own user account | Replace the authenticated user's editable profile fields. |
+| `GET`    | `/api/admin/users`     | Admin            | List users without password fields.                       |
+| `PUT`    | `/api/admin/users/:id` | Admin            | Replace a user's editable profile fields.                 |
+| `DELETE` | `/api/admin/users/:id` | Admin            | Delete a user.                                            |
+
+The `:id` parameter is the MongoDB document ID. User update endpoints reject
+requests targeting another account. Admins use the `/api/admin/users` endpoints
+for user management.
 
 ### Health check
 
@@ -77,7 +86,7 @@ Authorization: Bearer YOUR_JWT_HERE
 GET /health
 ```
 
-Example response:
+Returns HTTP `200` when MongoDB is connected and HTTP `503` otherwise. Example:
 
 ```json
 {
@@ -100,30 +109,19 @@ Content-Type: application/json
   "age": 30,
   "email": "jane@example.com",
   "address": "123 Main Street",
-  "password": "StrongPassword1!",
-  "role": "user"
+  "password": "StrongPassword1!"
 }
 ```
 
-`role` may be `user` or `admin`; if omitted, the model defaults it to `user`. The registration validator makes `age` and `address` optional, but the database model requires both, so include them. Passwords are hashed before storage.
+Name, age, email, address, and password are required. Passwords must be at
+least eight characters, no more than 72 UTF-8 bytes, and include uppercase and
+lowercase letters, a number, and a special character. Email addresses are
+normalized and unique. A `role` field is rejected; public registration always
+creates a regular user.
 
 ### Log in
 
-User login:
-
-```http
-POST /api/users/login
-Content-Type: application/json
-```
-
-Admin login:
-
-```http
-POST /api/admin/login
-Content-Type: application/json
-```
-
-Both endpoints accept an email and password:
+Both login endpoints accept an email and password:
 
 ```json
 {
@@ -132,7 +130,9 @@ Both endpoints accept an email and password:
 }
 ```
 
-Successful login returns a JWT token. User tokens expire after one hour; admin tokens expire after one day.
+User tokens expire after one hour; admin tokens expire after one day. Both
+tokens contain the MongoDB document ID in the `id` claim and are rejected if
+the account is deleted or its role changes.
 
 ### Update a user
 
@@ -140,7 +140,7 @@ Update a name:
 
 ```http
 PATCH /api/users/<user-id>
-Authorization: Bearer YOUR_JWT_HERE
+Authorization: Bearer <user-token>
 Content-Type: application/json
 ```
 
@@ -150,22 +150,33 @@ Content-Type: application/json
 }
 ```
 
-`PUT /api/users/<user-id>` and `PUT /api/admin/<user-id>` replace the record and require `name`, `age`, `email`, `address`, and `password`.
+`PUT /api/users/<user-id>` and `PUT /api/admin/users/<user-id>` replace the
+profile fields `name`, `age`, `email`, and `address`. Password and role changes
+are not supported by these endpoints. Passwords and password hashes are never
+included in API responses.
 
 ### Delete a user
 
 ```http
-DELETE /api/admin/<user-id>
-Authorization: Bearer YOUR_ADMIN_JWT_HERE
+DELETE /api/admin/users/<user-id>
+Authorization: Bearer <admin-token>
 ```
 
-The `id` in user and admin record routes is the MongoDB document ID.
+### Errors
 
-## Important implementation notes
+Errors use a simple JSON response:
 
-- The registration endpoint currently allows clients to submit `"role": "admin"`. Restrict admin account creation before exposing the API publicly.
-- Admin login issues a token with the role value `admin`, while admin authorization currently checks for `Admin`. Consequently, requests to admin-protected routes are rejected until those role values are aligned.
-- User update routes require a valid token but currently do not check that the token belongs to the user being updated.
+```json
+{
+  "status": "error",
+  "message": "User not found"
+}
+```
+
+Validation errors return `400`, missing records return `404`, duplicate email
+addresses return `409`, and unexpected server errors return a generic `500`
+message. Detailed unexpected errors are written to the server log, not returned
+to clients.
 
 ## Project structure
 
@@ -173,18 +184,20 @@ The `id` in user and admin record routes is the MongoDB document ID.
 src/
   config/       MongoDB connection
   controllers/  Authentication and user handlers
-  middleware/   Authentication and request validation
+  middleware/   Authentication, validation, and global errors
   models/       Mongoose user model
   routes/       Express API routes
+  scripts/      Admin seeding command
   validators/   Joi request schemas
   server.js     Application setup and startup
 ```
 
 ## Available scripts
 
-| Command                | Description                       |
-| ---------------------- | --------------------------------- |
-| `npm start`            | Start the API with Node.js.       |
-| `npm run dev`          | Start the API with nodemon.       |
-| `npm run format`       | Format the project with Prettier. |
-| `npm run format:check` | Check formatting with Prettier.   |
+| Command                | Description                                                |
+| ---------------------- | ---------------------------------------------------------- |
+| `npm start`            | Start the API with Node.js.                                |
+| `npm run dev`          | Start the API with nodemon.                                |
+| `npm run seed:admin`   | Create the initial admin using the configured seed values. |
+| `npm run format`       | Format the project with Prettier.                          |
+| `npm run format:check` | Check formatting with Prettier.                            |
